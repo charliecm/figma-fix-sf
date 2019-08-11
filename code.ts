@@ -120,14 +120,16 @@ async function traverse(nodes: any) {
           break
         }
         node.letterSpacing = {
-          value: (fontSize * TRACKING_DISPLAY[fontSize]) / TRACKING_UNIT,
+          value:
+            (fontSize * TRACKING_DISPLAY[Math.floor(fontSize)]) / TRACKING_UNIT,
           unit: "PIXELS"
         }
         break
       case FONT_TEXT:
         node.letterSpacing = {
           value:
-            (fontSize * TRACKING_TEXT[Math.max(SIZE_MIN, fontSize)]) /
+            (fontSize *
+              TRACKING_TEXT[Math.max(SIZE_MIN, Math.floor(fontSize))]) /
             TRACKING_UNIT,
           unit: "PIXELS"
         }
