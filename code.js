@@ -18,16 +18,16 @@ const SIZE_MAX = 79;
 const SIZE_SWAP = 20;
 const TRACKING_UNIT = 1000;
 // Fills missing font size values inbetween defined values
-function fillTracking(arr, min, max) {
+function fillTracking(dict, min, max) {
     let value = 0;
     for (let i = min; i < max; i++) {
-        if (i in arr) {
-            value = arr[i];
+        if (i in dict) {
+            value = dict[i];
             continue;
         }
-        arr[i] = value;
+        dict[i] = value;
     }
-    return arr;
+    return dict;
 }
 const TRACKING_DISPLAY = fillTracking({
     20: 19,
@@ -63,13 +63,17 @@ const TRACKING_TEXT = fillTracking({
     18: -25,
     19: -26
 }, SIZE_MIN, SIZE_SWAP);
-function traverse() {
+function traverse(nodes) {
     return __awaiter(this, void 0, void 0, function* () {
-        const nodes = figma.currentPage.selection;
         let modifiedCount = 0;
         for (let i = 0; i < nodes.length; i++) {
             const node = nodes[i];
+            if ("children" in node) {
+                modifiedCount += yield traverse(node.children);
+            }
             if (node.type !== "TEXT")
+                continue;
+            if (node.textStyleId)
                 continue;
             let isModified = false;
             let fontFamily = node.fontName.family;
@@ -121,9 +125,15 @@ function traverse() {
             if (isModified)
                 modifiedCount++;
         }
+        return modifiedCount;
+    });
+}
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const modifiedCount = yield traverse(figma.currentPage.selection);
         figma.closePlugin(modifiedCount
             ? `Updated ${modifiedCount} texts with SF typeface.`
             : "No texts were updated.");
     });
 }
-traverse();
+run();

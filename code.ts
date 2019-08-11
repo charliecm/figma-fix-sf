@@ -13,16 +13,20 @@ const SIZE_SWAP = 20
 const TRACKING_UNIT = 1000
 
 // Fills missing font size values inbetween defined values
-function fillTracking(arr, min, max) {
+function fillTracking(
+  dict: { [key: number]: number },
+  min: number,
+  max: number
+) {
   let value = 0
   for (let i = min; i < max; i++) {
-    if (i in arr) {
-      value = arr[i]
+    if (i in dict) {
+      value = dict[i]
       continue
     }
-    arr[i] = value
+    dict[i] = value
   }
-  return arr
+  return dict
 }
 
 const TRACKING_DISPLAY = fillTracking(
@@ -69,13 +73,16 @@ const TRACKING_TEXT = fillTracking(
   SIZE_SWAP
 )
 
-async function traverse() {
-  const nodes = figma.currentPage.selection
+async function traverse(nodes: any) {
   let modifiedCount = 0
 
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
+    if ("children" in node) {
+      modifiedCount += await traverse(node.children)
+    }
     if (node.type !== "TEXT") continue
+    if (node.textStyleId) continue
 
     let isModified = false
     let fontFamily = (node.fontName as FontName).family
@@ -133,6 +140,11 @@ async function traverse() {
     if (isModified) modifiedCount++
   }
 
+  return modifiedCount
+}
+
+async function run() {
+  const modifiedCount = await traverse(figma.currentPage.selection)
   figma.closePlugin(
     modifiedCount
       ? `Updated ${modifiedCount} texts with SF typeface.`
@@ -140,4 +152,4 @@ async function traverse() {
   )
 }
 
-traverse()
+run()
