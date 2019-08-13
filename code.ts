@@ -74,22 +74,35 @@ const TRACKING_TEXT = fillTracking(
 )
 
 async function traverse(nodes: any) {
-  let modifiedCount = 0
+  let count = {
+    texts: 0, // Nodes with SF fonts
+    others: 0, // Nodes without SF fonts
+    modified: 0 // Nodes with modification
+  }
 
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if ("children" in node) {
-      modifiedCount += await traverse(node.children)
+      const { texts, modified, others } = await traverse(node.children)
+      count.texts += texts
+      count.modified += modified
+      count.others += others
     }
-    if (node.type !== "TEXT") continue
-    if (node.textStyleId) continue
+    if (node.type !== "TEXT" || node.textStyleId) {
+      count.others++
+      continue
+    }
 
     let isModified = false
     let fontFamily = (node.fontName as FontName).family
     const fontSize = node.fontSize as number
     const letterSpacing = node.letterSpacing
 
-    if (fontFamily !== FONT_DISPLAY && fontFamily !== FONT_TEXT) continue
+    if (fontFamily !== FONT_DISPLAY && fontFamily !== FONT_TEXT) {
+      count.others++
+      continue
+    }
+    count.texts++
 
     if (fontFamily === FONT_DISPLAY && fontSize < SIZE_SWAP) {
       fontFamily = FONT_TEXT
@@ -139,21 +152,30 @@ async function traverse(nodes: any) {
     // Check if text node is modified
     if (JSON.stringify(node.letterSpacing) !== JSON.stringify(letterSpacing))
       isModified = true
-    if (isModified) modifiedCount++
+    if (isModified) count.modified++
   }
 
-  return modifiedCount
+  return count
 }
 
 async function run() {
-  const modifiedCount = await traverse(figma.currentPage.selection)
-  figma.closePlugin(
-    modifiedCount
-      ? modifiedCount === 1
-        ? "Updated 1 text with SF typeface."
-        : `Updated ${modifiedCount} texts with SF typeface.`
-      : "No texts were updated."
-  )
+  const count = await traverse(figma.currentPage.selection)
+  let message = ""
+  if (count.modified === 1) {
+    message = "Updated 1 text with SF fonts ✅"
+  } else if (count.modified) {
+    message = `Updated ${count.modified} texts with SF fonts ✅`
+  } else if (count.texts && count.others) {
+    message = "Texts in selection with SF fonts are already fixed 👍"
+  } else if (count.texts === 1 && !count.others) {
+    message = "Text is already fixed 👍"
+  } else if (count.texts) {
+    message = "Selected texts with SF fonts are already fixed 👍"
+  } else {
+    message =
+      "Please select texts with 'SF Pro Display' or 'SF Pro Text' fonts."
+  }
+  figma.closePlugin(message)
 }
 
 run()
