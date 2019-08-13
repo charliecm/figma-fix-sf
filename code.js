@@ -96,7 +96,6 @@ function traverse(nodes) {
             };
             yield figma.loadFontAsync(fontName);
             node.fontName = fontName;
-            console.log("hi", Math.floor(fontSize));
             // Set tracking
             switch (fontFamily) {
                 case FONT_DISPLAY:
@@ -134,7 +133,9 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const modifiedCount = yield traverse(figma.currentPage.selection);
         figma.closePlugin(modifiedCount
-            ? `Updated ${modifiedCount} texts with SF typeface.`
+            ? modifiedCount === 1
+                ? "Updated 1 text with SF typeface."
+                : `Updated ${modifiedCount} texts with SF typeface.`
             : "No texts were updated.");
     });
 }

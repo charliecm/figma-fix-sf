@@ -149,7 +149,9 @@ async function run() {
   const modifiedCount = await traverse(figma.currentPage.selection)
   figma.closePlugin(
     modifiedCount
-      ? `Updated ${modifiedCount} texts with SF typeface.`
+      ? modifiedCount === 1
+        ? "Updated 1 text with SF typeface."
+        : `Updated ${modifiedCount} texts with SF typeface.`
       : "No texts were updated."
   )
 }
