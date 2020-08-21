@@ -4,10 +4,11 @@
  * https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/typography/#font-usage-and-tracking
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -46,7 +47,7 @@ const TRACKING_DISPLAY = fillTracking({
     56: 5,
     60: 4,
     65: 3,
-    69: 2
+    69: 2,
 }, SIZE_SWAP, SIZE_MAX);
 const TRACKING_TEXT = fillTracking({
     6: 41,
@@ -61,14 +62,82 @@ const TRACKING_TEXT = fillTracking({
     16: -20,
     17: -24,
     18: -25,
-    19: -26
+    19: -26,
 }, SIZE_MIN, SIZE_SWAP);
+var TextOutcome;
+(function (TextOutcome) {
+    TextOutcome[TextOutcome["Modified"] = 0] = "Modified";
+    TextOutcome[TextOutcome["Unmodified"] = 1] = "Unmodified";
+    TextOutcome[TextOutcome["Unsupported"] = 2] = "Unsupported";
+})(TextOutcome || (TextOutcome = {}));
+function applyToRange(node, start, end) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const fontName = node.getRangeFontName(start, end);
+        const fontSize = node.getRangeFontSize(start, end);
+        const letterSpacing = node.getRangeLetterSpacing(start, end);
+        if (fontName === figma.mixed ||
+            fontSize === figma.mixed ||
+            letterSpacing === figma.mixed)
+            // Ignore mixed range
+            return;
+        let isModified = false;
+        let fontFamily = fontName.family;
+        if (fontFamily !== FONT_DISPLAY && fontFamily !== FONT_TEXT) {
+            // Font family is not supported
+            return TextOutcome.Unsupported;
+        }
+        if (fontFamily === FONT_DISPLAY && fontSize < SIZE_SWAP) {
+            // Switch to Text variation if text is small
+            fontFamily = FONT_TEXT;
+            isModified = true;
+        }
+        if (fontFamily === FONT_TEXT && fontSize >= SIZE_SWAP) {
+            // Switch to Display variation if text is larger
+            fontFamily = FONT_DISPLAY;
+            isModified = true;
+        }
+        // Load and assign font family
+        const newFontName = {
+            family: fontFamily,
+            style: fontName.style,
+        };
+        yield figma.loadFontAsync(newFontName);
+        node.setRangeFontName(start, end, newFontName);
+        // Apply tracking
+        let newLetterSpacing = {
+            value: 0,
+            unit: "PIXELS",
+        };
+        switch (fontFamily) {
+            case FONT_DISPLAY:
+                if (fontSize >= SIZE_MAX) {
+                    newLetterSpacing.value = 0;
+                    break;
+                }
+                newLetterSpacing.value =
+                    (fontSize * TRACKING_DISPLAY[Math.floor(fontSize)]) / TRACKING_UNIT;
+                break;
+            case FONT_TEXT:
+                newLetterSpacing.value =
+                    (fontSize * TRACKING_TEXT[Math.max(SIZE_MIN, Math.floor(fontSize))]) /
+                        TRACKING_UNIT;
+                break;
+        }
+        node.setRangeLetterSpacing(start, end, newLetterSpacing);
+        // Check if tracking has been modified
+        if (newLetterSpacing.value.toPrecision(2) !==
+            letterSpacing.value.toPrecision(2) ||
+            newLetterSpacing.unit !== letterSpacing.unit)
+            isModified = true;
+        return isModified ? TextOutcome.Modified : TextOutcome.Unmodified;
+    });
+}
 function traverse(nodes) {
     return __awaiter(this, void 0, void 0, function* () {
         let count = {
             texts: 0,
             others: 0,
-            modified: 0 // Nodes with modification
+            modified: 0,
         };
         for (let i = 0; i < nodes.length; i++) {
             const node = nodes[i];
@@ -82,59 +151,51 @@ function traverse(nodes) {
                 count.others++;
                 continue;
             }
-            let isModified = false;
-            let fontFamily = node.fontName.family;
-            const fontSize = node.fontSize;
-            const letterSpacing = node.letterSpacing;
-            if (fontFamily !== FONT_DISPLAY && fontFamily !== FONT_TEXT) {
-                count.others++;
-                continue;
-            }
-            count.texts++;
-            if (fontFamily === FONT_DISPLAY && fontSize < SIZE_SWAP) {
-                fontFamily = FONT_TEXT;
-                isModified = true;
-            }
-            if (fontFamily === FONT_TEXT && fontSize >= SIZE_SWAP) {
-                fontFamily = FONT_DISPLAY;
-                isModified = true;
-            }
-            // Load and assign font family
-            const fontName = {
-                family: fontFamily,
-                style: node.fontName.style
-            };
-            yield figma.loadFontAsync(fontName);
-            node.fontName = fontName;
-            // Set tracking
-            switch (fontFamily) {
-                case FONT_DISPLAY:
-                    if (fontSize >= SIZE_MAX) {
-                        node.letterSpacing = {
-                            value: 0,
-                            unit: "PIXELS"
-                        };
-                        break;
+            let textNode = node;
+            if (textNode.fontName === figma.mixed ||
+                textNode.fontSize === figma.mixed ||
+                textNode.letterSpacing === figma.mixed) {
+                // Check each character when text has mixed styles
+                for (let i = 0; i < textNode.characters.length; i++) {
+                    // Load all current fonts first
+                    yield figma.loadFontAsync(node.getRangeFontName(i, i + 1));
+                }
+                let isModified = false;
+                let isUnmodified = false;
+                for (let i = 0; i < textNode.characters.length; i++) {
+                    switch (yield applyToRange(textNode, i, i + 1)) {
+                        case TextOutcome.Modified:
+                            isModified = true;
+                            break;
+                        case TextOutcome.Unmodified:
+                            isUnmodified = true;
+                            break;
+                        case TextOutcome.Unsupported:
+                            break;
                     }
-                    node.letterSpacing = {
-                        value: (fontSize * TRACKING_DISPLAY[Math.floor(fontSize)]) / TRACKING_UNIT,
-                        unit: "PIXELS"
-                    };
-                    break;
-                case FONT_TEXT:
-                    node.letterSpacing = {
-                        value: (fontSize *
-                            TRACKING_TEXT[Math.max(SIZE_MIN, Math.floor(fontSize))]) /
-                            TRACKING_UNIT,
-                        unit: "PIXELS"
-                    };
-                    break;
+                }
+                if (isModified)
+                    count.modified++;
+                else if (isUnmodified)
+                    count.texts++;
+                else
+                    count.others++;
             }
-            // Check if text node is modified
-            if (JSON.stringify(node.letterSpacing) !== JSON.stringify(letterSpacing))
-                isModified = true;
-            if (isModified)
-                count.modified++;
+            else {
+                // Check entire text
+                switch (yield applyToRange(textNode, 0, textNode.characters.length)) {
+                    case TextOutcome.Modified:
+                        count.modified++;
+                        break;
+                    case TextOutcome.Unmodified:
+                        count.texts++;
+                        break;
+                    case TextOutcome.Unsupported:
+                        count.others++;
+                    default:
+                        break;
+                }
+            }
         }
         return count;
     });
