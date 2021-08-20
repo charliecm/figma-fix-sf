@@ -29,6 +29,27 @@ function fillTracking(
   return dict
 }
 
+const TRACKING_TEXT = fillTracking(
+  {
+    6: 41,
+    7: 34,
+    8: 26,
+    9: 19,
+    10: 12,
+    11: 6,
+    12: 0,
+    13: -6,
+    14: -11,
+    15: -16,
+    16: -20,
+    17: -26,
+    18: -25,
+    19: -24,
+  },
+  SIZE_MIN,
+  SIZE_SWAP
+)
+
 const TRACKING_DISPLAY = fillTracking(
   {
     20: 19,
@@ -52,27 +73,6 @@ const TRACKING_DISPLAY = fillTracking(
   },
   SIZE_SWAP,
   SIZE_MAX
-)
-
-const TRACKING_TEXT = fillTracking(
-  {
-    6: 41,
-    7: 34,
-    8: 26,
-    9: 19,
-    10: 12,
-    11: 6,
-    12: 0,
-    13: -6,
-    14: -11,
-    15: -16,
-    16: -20,
-    17: -26,
-    18: -25,
-    19: -24,
-  },
-  SIZE_MIN,
-  SIZE_SWAP
 )
 
 enum TextOutcome {
