@@ -2,7 +2,7 @@
 
 ![](/cover.png?raw=true)
 
-This plugin won't fix the city's problems, but it will automatically apply the [correct font variant and tracking](https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/typography/#font-usage-and-tracking) for selected texts using the San Francisco typeface.
+This plugin won't fix the city's problems, but it will automatically apply the [correct font variant and tracking](https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/typography#tracking-values) for selected texts using the San Francisco typeface.
 
 ## Usage
 
