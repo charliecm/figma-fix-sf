@@ -4,11 +4,11 @@
  * https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/typography/#font-usage-and-tracking
  */
 
-const FONT_DISPLAY = "SF Pro Display"
 const FONT_TEXT = "SF Pro Text"
+const FONT_DISPLAY = "SF Pro Display"
 
 const SIZE_MIN = 6
-const SIZE_MAX = 79
+const SIZE_MAX = 80
 const SIZE_SWAP = 20
 const TRACKING_UNIT = 1000
 

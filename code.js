@@ -12,10 +12,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const FONT_DISPLAY = "SF Pro Display";
 const FONT_TEXT = "SF Pro Text";
+const FONT_DISPLAY = "SF Pro Display";
 const SIZE_MIN = 6;
-const SIZE_MAX = 79;
+const SIZE_MAX = 80;
 const SIZE_SWAP = 20;
 const TRACKING_UNIT = 1000;
 // Fills missing font size values inbetween defined values
