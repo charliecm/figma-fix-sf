@@ -133,10 +133,6 @@ function applyToRange(node, start, end) {
             fontFamily = FONT_DISPLAY;
             isModified = true;
         }
-        if (fontFamily === FONT_ROUNDED) {
-            fontFamily = FONT_ROUNDED;
-            isModified = true;
-        }
         // Load and assign font family
         const newFontName = {
             family: fontFamily,
