@@ -6,9 +6,11 @@
 
 const FONT_TEXT = "SF Pro Text"
 const FONT_DISPLAY = "SF Pro Display"
+const FONT_ROUNDED = "SF Pro Rounded"
 
 const SIZE_MIN = 6
 const SIZE_MAX = 80
+const SIZE_MAX_ROUNDED = 80
 const SIZE_SWAP = 20
 const TRACKING_UNIT = 1000
 
@@ -75,6 +77,44 @@ const TRACKING_DISPLAY = fillTracking(
   SIZE_MAX
 )
 
+const TRACKING_ROUNDED = fillTracking(
+  {
+    6: 87,
+    7: 80,
+    8: 72,
+    9: 65,
+    10: 58,
+    11: 52,
+    12: 46,
+    13: 40,
+    14: 35,
+    15: 30,
+    16: 26,
+    17: 22,
+    18: 21,
+    19: 20,
+    20: 18,
+    21: 17,
+    22: 16,
+    24: 15,
+    25: 14,
+    28: 13,
+    30: 12,
+    35: 11,
+    37: 10,
+    43: 9,
+    44: 8,
+    50: 7,
+    51: 6,
+    58: 4,
+    64: 3,
+    66: 2,
+    76: 1,
+  },
+  SIZE_MIN,
+  SIZE_MAX_ROUNDED
+)
+
 enum TextOutcome {
   Modified,
   Unmodified,
@@ -99,7 +139,7 @@ async function applyToRange(
 
   let isModified = false
   let fontFamily = fontName.family
-  if (fontFamily !== FONT_DISPLAY && fontFamily !== FONT_TEXT) {
+  if (fontFamily !== FONT_DISPLAY && fontFamily !== FONT_TEXT && fontFamily !== FONT_ROUNDED) {
     // Font family is not supported
     return TextOutcome.Unsupported
   }
@@ -113,6 +153,11 @@ async function applyToRange(
   if (fontFamily === FONT_TEXT && fontSize >= SIZE_SWAP) {
     // Switch to Display variation if text is larger
     fontFamily = FONT_DISPLAY
+    isModified = true
+  }
+
+  if (fontFamily === FONT_ROUNDED) {
+    fontFamily = FONT_ROUNDED
     isModified = true
   }
 
@@ -141,6 +186,15 @@ async function applyToRange(
     case FONT_TEXT:
       newLetterSpacing.value =
         (fontSize * TRACKING_TEXT[Math.max(SIZE_MIN, Math.floor(fontSize))]) /
+        TRACKING_UNIT
+      break
+    case FONT_ROUNDED:
+      if (fontSize >= SIZE_MAX_ROUNDED) {
+        newLetterSpacing.value = 0
+        break
+      }
+      newLetterSpacing.value =
+        (fontSize * TRACKING_ROUNDED[Math.max(SIZE_MIN, Math.floor(fontSize))]) /
         TRACKING_UNIT
       break
   }
@@ -241,7 +295,7 @@ async function run() {
     message = "Selected texts with SF fonts are already fixed 👍"
   } else {
     message =
-      "Please select texts with 'SF Pro Display' or 'SF Pro Text' fonts."
+      "Please select texts with 'SF Pro Display', 'SF Pro Text', or 'SF Pro Rounded' fonts."
   }
   figma.closePlugin(message)
 }
