@@ -6,12 +6,14 @@ This plugin won't fix the city's problems, but it will automatically apply the [
 
 ## Usage
 
-1. Select a Frame or texts with `SF Pro Display` or `SF Pro Text` fonts.
+1. Select a Frame or texts with `SF Pro Display`, `SF Pro Text`, `SF Pro Rounded`, or `New York` fonts.
 2. Run `Fix San Francisco` from Plugins menu.
 
 The plugin will find all relevant texts in your selections and apply the fix.
 
 **Note:** Texts with text style will not be changed.
+
+**Note:** For New York, only the tracking value is changed, not the font (Small, Medium, Large, Extra Large). If you know the font size range for each of the optical size variations, let me know.
 
 ## Context
 
