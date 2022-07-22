@@ -12,6 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+const FONT_DEFAULT = "SF Pro";
 const FONT_TEXT = "SF Pro Text";
 const FONT_DISPLAY = "SF Pro Display";
 const FONT_ROUNDED = "SF Pro Rounded";
@@ -37,6 +38,45 @@ function fillTracking(dict, min, max) {
     }
     return dict;
 }
+const TRACKING_DEFAULT = fillTracking({
+    6: 41,
+    7: 34,
+    8: 26,
+    9: 19,
+    10: 12,
+    11: 6,
+    12: 0,
+    13: -6,
+    14: -11,
+    15: -16,
+    16: -20,
+    17: -26,
+    18: -25,
+    19: -24,
+    20: -23,
+    21: -18,
+    22: -12,
+    23: -4,
+    24: 3,
+    25: 6,
+    26: 8,
+    27: 11,
+    28: 14,
+    31: 13,
+    33: 12,
+    35: 11,
+    36: 10,
+    41: 9,
+    44: 8,
+    49: 7,
+    52: 6,
+    58: 5,
+    60: 4,
+    66: 3,
+    68: 2,
+    76: 1,
+    80: 0
+}, SIZE_MIN, SIZE_MAX);
 const TRACKING_TEXT = fillTracking({
     6: 41,
     7: 34,
@@ -149,7 +189,7 @@ function applyToRange(node, start, end) {
             return;
         let isModified = false;
         let fontFamily = fontName.family;
-        if (fontFamily !== FONT_DISPLAY && fontFamily !== FONT_TEXT && fontFamily !== FONT_ROUNDED && fontFamily !== FONT_NEW_YORK_SMALL && fontFamily !== FONT_NEW_YORK_MEDIUM && fontFamily !== FONT_NEW_YORK_LARGE && fontFamily !== FONT_NEW_YORK_EXTRA_LARGE) {
+        if (fontFamily !== FONT_DEFAULT && fontFamily !== FONT_DISPLAY && fontFamily !== FONT_TEXT && fontFamily !== FONT_ROUNDED && fontFamily !== FONT_NEW_YORK_SMALL && fontFamily !== FONT_NEW_YORK_MEDIUM && fontFamily !== FONT_NEW_YORK_LARGE && fontFamily !== FONT_NEW_YORK_EXTRA_LARGE) {
             // Font family is not supported
             return TextOutcome.Unsupported;
         }
@@ -176,6 +216,14 @@ function applyToRange(node, start, end) {
             unit: "PIXELS",
         };
         switch (fontFamily) {
+            case FONT_DEFAULT:
+                if (fontSize >= SIZE_MAX) {
+                    newLetterSpacing.value = 0;
+                    break;
+                }
+                newLetterSpacing.value =
+                    (fontSize * TRACKING_DEFAULT[Math.floor(fontSize)]) / TRACKING_UNIT;
+                break;
             case FONT_DISPLAY:
                 if (fontSize >= SIZE_MAX) {
                     newLetterSpacing.value = 0;
@@ -225,7 +273,7 @@ function traverse(nodes) {
         let count = {
             texts: 0,
             others: 0,
-            modified: 0,
+            modified: 0, // Nodes with modification
         };
         for (let i = 0; i < nodes.length; i++) {
             const node = nodes[i];
@@ -309,7 +357,7 @@ function run() {
         }
         else {
             message =
-                "Please select texts with 'SF Pro Display', 'SF Pro Text', 'SF Pro Rounded', or 'New York' fonts.";
+                "Please select texts with 'SF Pro', 'SF Pro Display', 'SF Pro Text', 'SF Pro Rounded', or 'New York' fonts.";
         }
         figma.closePlugin(message);
     });
