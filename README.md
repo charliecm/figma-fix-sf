@@ -2,11 +2,11 @@
 
 ![](/cover.png?raw=true)
 
-This plugin won't fix the city's problems, but it will automatically apply the [correct font variant and tracking](https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/typography#tracking-values) for selected texts using the San Francisco typeface.
+This plugin won't fix the city's problems, but it will automatically apply the [correct font variant and tracking](https://developer.apple.com/design/human-interface-guidelines/foundations/typography#tracking-values-ios) for selected texts using the San Francisco typeface.
 
 ## Usage
 
-1. Select a Frame or texts with `SF Pro Display`, `SF Pro Text`, `SF Pro Rounded`, or `New York` fonts.
+1. Select a Frame or texts with `SF Pro`, `SF Pro Display`, `SF Pro Text`, `SF Pro Rounded`, or `New York` fonts.
 2. Run `Fix San Francisco` from Plugins menu.
 
 The plugin will find all relevant texts in your selections and apply the fix.
