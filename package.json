@@ -1,5 +1,13 @@
 {
+  "name": "figma-fix-sf",
+  "main": "code.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "author": "@charliecm",
+  "license": "MIT",
   "devDependencies": {
-    "@figma/plugin-typings": "^1.30.0"
+    "@figma/plugin-typings": "^1.49.0",
+    "typescript": "*"
   }
 }
