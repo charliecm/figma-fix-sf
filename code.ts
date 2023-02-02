@@ -8,10 +8,7 @@ const FONT_DEFAULT = "SF Pro"
 const FONT_TEXT = "SF Pro Text"
 const FONT_DISPLAY = "SF Pro Display"
 const FONT_ROUNDED = "SF Pro Rounded"
-const FONT_NEW_YORK_SMALL = "New York Small"
-const FONT_NEW_YORK_MEDIUM = "New York Medium"
-const FONT_NEW_YORK_LARGE = "New York Large"
-const FONT_NEW_YORK_EXTRA_LARGE = "New York Extra Large"
+const FONT_NEW_YORK = "New York"
 
 const SIZE_MIN = 6
 const SIZE_MAX = 80
@@ -219,7 +216,7 @@ async function applyToRange(
 
   let isModified = false
   let fontFamily = fontName.family
-  if (fontFamily !== FONT_DEFAULT && fontFamily !== FONT_DISPLAY && fontFamily !== FONT_TEXT && fontFamily !== FONT_ROUNDED && fontFamily !== FONT_NEW_YORK_SMALL && fontFamily !== FONT_NEW_YORK_MEDIUM && fontFamily !== FONT_NEW_YORK_LARGE && fontFamily !== FONT_NEW_YORK_EXTRA_LARGE) {
+  if (fontFamily !== FONT_DEFAULT && fontFamily !== FONT_DISPLAY && fontFamily !== FONT_TEXT && fontFamily !== FONT_ROUNDED && fontFamily !== FONT_NEW_YORK) {
     // Font family is not supported
     return TextOutcome.Unsupported
   }
@@ -280,10 +277,7 @@ async function applyToRange(
         (fontSize * TRACKING_ROUNDED[Math.max(SIZE_MIN, Math.floor(fontSize))]) /
         TRACKING_UNIT
       break
-    case FONT_NEW_YORK_SMALL:
-    case FONT_NEW_YORK_MEDIUM:
-    case FONT_NEW_YORK_LARGE:
-    case FONT_NEW_YORK_EXTRA_LARGE:
+    case FONT_NEW_YORK:
       if (fontSize >= SIZE_MAX_NEW_YORK) {
         newLetterSpacing.value = 0
         break
@@ -379,18 +373,18 @@ async function run() {
   const count = await traverse(figma.currentPage.selection)
   let message = ""
   if (count.modified === 1) {
-    message = "Updated 1 text with SF fonts ✅"
+    message = "Updated 1 text ✅"
   } else if (count.modified) {
-    message = `Updated ${count.modified} texts with SF fonts ✅`
+    message = `Updated ${count.modified} texts ✅`
   } else if (count.texts && count.others) {
-    message = "Texts in selection with SF fonts are already fixed 👍"
+    message = "Texts in selection are already fixed 👍"
   } else if (count.texts === 1 && !count.others) {
     message = "Text is already fixed 👍"
   } else if (count.texts) {
-    message = "Selected texts with SF fonts are already fixed 👍"
+    message = "Selected texts are already fixed 👍"
   } else {
     message =
-      "Please select texts with 'SF Pro', 'SF Pro Display', 'SF Pro Text', 'SF Pro Rounded', or 'New York' fonts."
+      "Please select texts with 'SF Pro', 'SF Pro Display', 'SF Pro Text', 'SF Pro Rounded', or 'New York' font."
   }
   figma.closePlugin(message)
 }
