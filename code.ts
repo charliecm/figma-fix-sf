@@ -302,8 +302,8 @@ async function applyToRange(
 
 async function traverse(nodes: any) {
   let count = {
-    texts: 0, // Nodes with SF fonts
-    others: 0, // Nodes without SF fonts
+    texts: 0, // Nodes with supported fonts
+    others: 0, // Nodes without supported fonts
     modified: 0, // Nodes with modification
   }
 
