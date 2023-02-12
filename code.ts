@@ -13,7 +13,7 @@ const FONT_NEW_YORK = "New York"
 const SIZE_MIN = 6
 const SIZE_MAX = 80
 const SIZE_MAX_ROUNDED = 80
-const SIZE_MAX_NEW_YORK = 260
+const SIZE_MAX_NEW_YORK = 261
 const SIZE_SWAP = 20
 const TRACKING_UNIT = 1000
 
