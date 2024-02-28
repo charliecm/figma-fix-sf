@@ -242,7 +242,7 @@ async function applyToRange(
   node.setRangeFontName(start, end, newFontName)
 
   // Apply tracking
-  let newLetterSpacing = {
+  const newLetterSpacing = {
     value: 0,
     unit: "PIXELS",
   }
@@ -300,8 +300,8 @@ async function applyToRange(
   return isModified ? TextOutcome.Modified : TextOutcome.Unmodified
 }
 
-async function traverse(nodes: any) {
-  let count = {
+async function traverse(nodes: readonly SceneNode[]) {
+  const count = {
     texts: 0, // Nodes with supported fonts
     others: 0, // Nodes without supported fonts
     modified: 0, // Nodes with modification
@@ -321,7 +321,7 @@ async function traverse(nodes: any) {
       continue
     }
 
-    let textNode = node as TextNode
+    const textNode = node as TextNode
     if (
       textNode.fontName === figma.mixed ||
       textNode.fontSize === figma.mixed ||
@@ -330,7 +330,7 @@ async function traverse(nodes: any) {
       // Check each character when text has mixed styles
       for (let i = 0; i < textNode.characters.length; i++) {
         // Load all current fonts first
-        await figma.loadFontAsync(node.getRangeFontName(i, i + 1))
+        await figma.loadFontAsync(node.getRangeFontName(i, i + 1) as FontName)
       }
       let isModified = false
       let isUnmodified = false
@@ -360,6 +360,7 @@ async function traverse(nodes: any) {
           break
         case TextOutcome.Unsupported:
           count.others++
+          break
         default:
           break
       }

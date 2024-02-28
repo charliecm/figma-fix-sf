@@ -208,7 +208,7 @@ function applyToRange(node, start, end) {
         yield figma.loadFontAsync(newFontName);
         node.setRangeFontName(start, end, newFontName);
         // Apply tracking
-        let newLetterSpacing = {
+        const newLetterSpacing = {
             value: 0,
             unit: "PIXELS",
         };
@@ -264,9 +264,9 @@ function applyToRange(node, start, end) {
 }
 function traverse(nodes) {
     return __awaiter(this, void 0, void 0, function* () {
-        let count = {
-            texts: 0,
-            others: 0,
+        const count = {
+            texts: 0, // Nodes with supported fonts
+            others: 0, // Nodes without supported fonts
             modified: 0, // Nodes with modification
         };
         for (let i = 0; i < nodes.length; i++) {
@@ -281,7 +281,7 @@ function traverse(nodes) {
                 count.others++;
                 continue;
             }
-            let textNode = node;
+            const textNode = node;
             if (textNode.fontName === figma.mixed ||
                 textNode.fontSize === figma.mixed ||
                 textNode.letterSpacing === figma.mixed) {
@@ -322,6 +322,7 @@ function traverse(nodes) {
                         break;
                     case TextOutcome.Unsupported:
                         count.others++;
+                        break;
                     default:
                         break;
                 }
